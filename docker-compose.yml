@@ -1,0 +1,64 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: app
+    ports:
+      - '80:80'
+    links:
+      - redis
+      - mysql
+    restart: always
+    networks:
+      - order-mgm-net
+    volumes:
+      - ./:/var/www/html
+
+  redis:
+    image: redis:alpine
+    restart: always
+    container_name: redis
+    networks:
+      - order-mgm-net
+    command: ["redis-server", "--appendonly", "yes"]
+    hostname: redis
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: integration_db
+      MYSQL_USERNAME: laravel
+      MYSQL_PASSWORD: laravelpassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - order-mgm-net
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    restart: always
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+    networks:
+      - order-mgm-net
+
+networks:
+  order-mgm-net:
+    name: order-mgm-net
+    driver: bridge
+
+volumes:
+  mysql_data:
