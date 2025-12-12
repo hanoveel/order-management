@@ -13,7 +13,7 @@ services:
     networks:
       - order-mgm-net
     volumes:
-      - ./:/var/www/html
+      - ./:/var/www/html:delegated
 
   redis:
     image: redis:alpine
@@ -30,8 +30,8 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: integration_db
-      MYSQL_USERNAME: laravel
+      MYSQL_DATABASE: orders_db
+      MYSQL_USER: laravel
       MYSQL_PASSWORD: laravelpassword
     ports:
       - "3306:3306"
