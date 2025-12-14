@@ -1,10 +1,10 @@
 <?php
 
-namespace app\Http\Controllers\Auth;
+namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use app\Http\Requests\Auth\LoginRequest;
-use app\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
