@@ -1,0 +1,1167 @@
+{
+	"info": {
+		"_postman_id": "ad1884c7-0e70-4940-af0f-a4495ce37c54",
+		"name": "Order Management",
+		"description": "### Welcome to Postman! This is your first collection. \n\nCollections are your starting point for building and testing APIs. You can use this one to:\n\n• Group related requests\n• Test your API in real-world scenarios\n• Document and share your requests\n\nUpdate the name and overview whenever you’re ready to make it yours.\n\n[Learn more about Postman Collections.](https://learning.postman.com/docs/collections/collections-overview/)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "50750612",
+		"_collection_link": "https://hatem-shaaban-dev-8716412.postman.co/workspace/Hatem-Shaaban's-Workspace~35905d09-e940-4c69-8c75-0d130ad48e4f/collection/50750612-ad1884c7-0e70-4940-af0f-a4495ce37c54?action=share&source=collection_link&creator=50750612"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Only run tests on successful 2xx responses",
+									"if (pm.response.code >= 200 && pm.response.code < 300) {",
+									"    let jsonData;",
+									"    ",
+									"    // Attempt to parse JSON response",
+									"    try {",
+									"        jsonData = pm.response.json();",
+									"    } catch (e) {",
+									"        console.log(\"Unable to parse JSON response. Response body may not be valid JSON.\");",
+									"        jsonData = null;",
+									"    }",
+									"    ",
+									"    if (jsonData) {",
+									"        // Test: access_token is present and is a non-empty string",
+									"        pm.test(\"access_token is present and is a non-empty string\", function () {",
+									"            pm.expect(jsonData).to.have.property(\"access_token\");",
+									"            pm.expect(jsonData.access_token).to.be.a(\"string\").and.not.be.empty;",
+									"        });",
+									"        ",
+									"        // Save access_token to environment variable if present",
+									"        if (jsonData.access_token && typeof jsonData.access_token === \"string\" && jsonData.access_token.length > 0) {",
+									"            pm.collectionVariables.set(\"token\", jsonData.access_token);",
+									"            console.log(\"access_token saved to environment variable 'token'\");",
+									"        } else {",
+									"            console.log(\"access_token is missing or invalid. Cannot save to environment variable.\");",
+									"        }",
+									"        ",
+									"        // Optional test: token_type (does not fail if absent)",
+									"        if (jsonData.hasOwnProperty(\"token_type\")) {",
+									"            pm.test(\"token_type is a string (optional)\", function () {",
+									"                pm.expect(jsonData.token_type).to.be.a(\"string\");",
+									"            });",
+									"        }",
+									"        ",
+									"        // Optional test: expires_in (does not fail if absent)",
+									"        if (jsonData.hasOwnProperty(\"expires_in\")) {",
+									"            pm.test(\"expires_in is a number (optional)\", function () {",
+									"                pm.expect(jsonData.expires_in).to.be.a(\"number\");",
+									"            });",
+									"        }",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Hatem Shaaban\",\r\n    \"email\": \"hanoveel@gmail.com\",\r\n    \"phone\": \"+201555545595\",\r\n    \"password\": \"Netfire554466\",\r\n    \"password_confirmation\": \"Netfire554466\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost/api/auth/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						},
+						"description": "### Purpose\n\nRegister a new user account and receive an authentication token for subsequent requests.\n\n### Endpoint & Method\n\n- **URL:** `http://localhost/api/auth/register`\n    \n- **Method:** `POST`\n    \n\n### Authentication\n\n- **Auth required to call this endpoint:** No (public registration endpoint).\n    \n- **Auth provided by this endpoint:** On success, it returns an `access_token` that can be used to authenticate future requests.\n    \n\n### Request Headers\n\n- `Accept: application/json`\n    \n- `Content-Type: application/json`\n    \n\n### Request Body (JSON)\n\nSend a JSON object with the following fields:\n\n- `name` (string, required)\n    \n    - The full name of the user.\n        \n    - Example: `\"Hatem Shaaban\"`\n        \n- `email` (string, required)\n    \n    - The user's email address, typically must be unique and in a valid email format.\n        \n    - Example: `\"hanoveel@gmail.com\"`\n        \n- `phone` (string, required)\n    \n    - The user's phone number in international format, including country code.\n        \n    - Example: `\"+201555545595\"`\n        \n- `password` (string, required)\n    \n    - The user's password. Usually must meet minimum length/complexity rules (e.g., at least 8 characters, mix of letters/numbers/symbols) depending on server validation.\n        \n    - Example: `\"Netfire554466\"`\n        \n- `password_confirmation` (string, required)\n    \n    - Must match the `password` field exactly; used for server-side confirmation.\n        \n    - Example: `\"Netfire554466\"`\n        \n\n#### Sample Request Body\n\n``` json\n{\n  \"name\": \"Hatem Shaaban\",\n  \"email\": \"hanoveel@gmail.com\",\n  \"phone\": \"+201555545595\",\n  \"password\": \"Netfire554466\",\n  \"password_confirmation\": \"Netfire554466\"\n}\n\n ```\n\n### Expected Successful Response\n\nOn a successful registration (HTTP 2xx response), the server typically returns a JSON object containing:\n\n- `access_token` (string)\n    \n    - A non-empty token string used to authenticate subsequent API requests.\n        \n- `token_type` (string, optional)\n    \n    - The type of the token (for example, `\"Bearer\"`).\n        \n- `expires_in` (number, optional)\n    \n    - Time in seconds until the token expires.\n        \n\n---\n\n### Error Responses\n\n- **422 Unprocessable Entity (Validation Error)**\n  \n  Returned when one or more of the request body fields fail validation (for example, missing required fields, invalid email format, password confirmation not matching, or phone not in the expected format). The response body typically includes details about which fields caused the validation error.\n"
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Only run tests on successful 2xx responses\r",
+									"if (pm.response.code >= 200 && pm.response.code < 300) {\r",
+									"    let jsonData;\r",
+									"    \r",
+									"    // Attempt to parse JSON response\r",
+									"    try {\r",
+									"        jsonData = pm.response.json();\r",
+									"    } catch (e) {\r",
+									"        console.log(\"Unable to parse JSON response. Response body may not be valid JSON.\");\r",
+									"        jsonData = null;\r",
+									"    }\r",
+									"    \r",
+									"    if (jsonData) {\r",
+									"        // Test: access_token is present and is a non-empty string\r",
+									"        pm.test(\"access_token is present and is a non-empty string\", function () {\r",
+									"            pm.expect(jsonData).to.have.property(\"access_token\");\r",
+									"            pm.expect(jsonData.access_token).to.be.a(\"string\").and.not.be.empty;\r",
+									"        });\r",
+									"        \r",
+									"        // Save access_token to environment variable if present\r",
+									"        if (jsonData.access_token && typeof jsonData.access_token === \"string\" && jsonData.access_token.length > 0) {\r",
+									"            pm.collectionVariables.set(\"token\", jsonData.access_token);\r",
+									"            console.log(\"access_token saved to environment variable 'token'\");\r",
+									"        } else {\r",
+									"            console.log(\"access_token is missing or invalid. Cannot save to environment variable.\");\r",
+									"        }\r",
+									"        \r",
+									"        // Optional test: token_type (does not fail if absent)\r",
+									"        if (jsonData.hasOwnProperty(\"token_type\")) {\r",
+									"            pm.test(\"token_type is a string (optional)\", function () {\r",
+									"                pm.expect(jsonData.token_type).to.be.a(\"string\");\r",
+									"            });\r",
+									"        }\r",
+									"        \r",
+									"        // Optional test: expires_in (does not fail if absent)\r",
+									"        if (jsonData.hasOwnProperty(\"expires_in\")) {\r",
+									"            pm.test(\"expires_in is a number (optional)\", function () {\r",
+									"                pm.expect(jsonData.expires_in).to.be.a(\"number\");\r",
+									"            });\r",
+									"        }\r",
+									"    }\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"hanoveel@gmail.com\",\r\n    \"password\": \"Netfire554466\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost/api/auth/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "## Overview\n\nThis request logs a user into the API and returns a short‑lived access token. The token is then used to authenticate subsequent requests in the **Order Management** API.\n\nUse this endpoint when a registered user provides their email and password and you need to obtain a bearer token for protected operations (for example: creating orders, listing payments, or managing gateways).\n\n---\n\n## Request\n\n- **Method:** `POST`\n    \n- **URL:** `http://localhost/api/auth/login`\n    \n- **Headers:**\n    \n    - `Accept: application/json`\n        \n    - `Content-Type: application/json`\n        \n\nThe request must include a JSON body with the user’s credentials.\n\n---\n\n## Body parameters\n\nSend a JSON object in the request body:\n\n``` json\n{\n  \"email\": \"hanoveel@gmail.com\",\n  \"password\": \"Netfire554466\"\n}\n\n ```\n\n**Fields**\n\n- `email` (string, required)\n    \n    - The user’s registered email address.\n        \n    - Must match an existing account.\n        \n- `password` (string, required)\n    \n    - The password associated with the given email.\n        \n\nIf either field is missing or invalid, the server will typically respond with a 4xx error (for example, invalid credentials or validation error).\n\n---\n\n## Response\n\nOn success (`200 OK`), the API returns a JSON object similar to:\n\n``` json\n{\n  \"access_token\": \"<jwt-token-string>\",\n  \"token_type\": \"bearer\",\n  \"expires_in\": 3600\n}\n\n ```\n\n**Properties**\n\n- `access_token` (string)\n    \n    - A non‑empty JWT or opaque token used to authenticate future requests.\n        \n- `token_type` (string)\n    \n    - The type of token issued, typically `\"bearer\"`.\n        \n- `expires_in` (number)\n    \n    - Lifetime of the token in seconds (e.g., `3600` = 1 hour).\n        \n\nIn this collection, tests verify that `access_token` exists and is a non‑empty string, and that `token_type` and `expires_in` (when present) have the expected types.\n\n---\n\n## Usage notes\n\n- **Token storage in this collection**\n    \n    - After a successful response, the test script automatically saves `access_token` into a **collection variable** named `token`.\n        \n    - Other requests (for example, order, payment, or gateway endpoints) can reference this variable as `{{token}}` in their Authorization header or auth settings.\n        \n- **Using the token in subsequent requests**\n    \n    - Configure protected requests to send the token as a bearer token, for example:\n        \n        ``` http\n            Authorization: Bearer {{token}}\n        \n         ```\n        \n    - Make sure to **send this Login request first** (or re‑send it after expiry) so that `{{token}}` is up to date.\n        \n- **When to re‑authenticate**\n    \n    - If you receive `401 Unauthorized` or similar responses from protected endpoints, your token may be missing or expired.\n        \n    - Re‑run this **Login** request to obtain a fresh token, then retry the failing request.\n        \n\nThis description is intended as a beginner‑friendly reference for how to call the login endpoint and how its token is used across the Order Management collection."
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"token\", \"\");"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost/api/auth/logout",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"api",
+								"auth",
+								"logout"
+							]
+						},
+						"description": "Logs out the currently authenticated user and invalidates their active session or access token.\n\n### Authentication\n\n- Expects a valid access token to be sent with the request (typically via an `Authorization: Bearer {{token}}` header).\n    \n- The token should be obtained from the **Login** endpoint earlier in the flow.\n    \n\n### Behavior\n\n- On success, the server revokes/invalidates the provided token so it can no longer be used for authenticated requests.\n    \n- Subsequent calls to protected endpoints using the same token should fail with an authentication error (for example, `401 Unauthorized`).\n    \n- This endpoint is idempotent: calling it multiple times with the same (already invalidated) token should not cause additional side effects beyond returning a standard logout/invalid token response.\n    \n\n### Usage in Auth Flow\n\n1. Call **Login** to authenticate and receive a token.\n    \n2. Use the token to access protected Order Management endpoints (e.g., create orders, list orders, process payments).\n    \n3. Call **Logout** when the user signs out or when you want to explicitly terminate the current session.\n    \n\nThis endpoint is typically called from client applications (web, mobile, or backend services) whenever a user chooses to sign out, ensuring that the token stored on the client becomes unusable on the server side."
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Only run tests on successful 2xx responses\r",
+									"if (pm.response.code >= 200 && pm.response.code < 300) {\r",
+									"    let jsonData;\r",
+									"    \r",
+									"    // Attempt to parse JSON response\r",
+									"    try {\r",
+									"        jsonData = pm.response.json();\r",
+									"    } catch (e) {\r",
+									"        console.log(\"Unable to parse JSON response. Response body may not be valid JSON.\");\r",
+									"        jsonData = null;\r",
+									"    }\r",
+									"    \r",
+									"    if (jsonData) {\r",
+									"        // Test: access_token is present and is a non-empty string\r",
+									"        pm.test(\"access_token is present and is a non-empty string\", function () {\r",
+									"            pm.expect(jsonData).to.have.property(\"access_token\");\r",
+									"            pm.expect(jsonData.access_token).to.be.a(\"string\").and.not.be.empty;\r",
+									"        });\r",
+									"        \r",
+									"        // Save access_token to environment variable if present\r",
+									"        if (jsonData.access_token && typeof jsonData.access_token === \"string\" && jsonData.access_token.length > 0) {\r",
+									"            pm.collectionVariables.set(\"token\", jsonData.access_token);\r",
+									"            console.log(\"access_token saved to environment variable 'token'\");\r",
+									"        } else {\r",
+									"            console.log(\"access_token is missing or invalid. Cannot save to environment variable.\");\r",
+									"        }\r",
+									"        \r",
+									"        // Optional test: token_type (does not fail if absent)\r",
+									"        if (jsonData.hasOwnProperty(\"token_type\")) {\r",
+									"            pm.test(\"token_type is a string (optional)\", function () {\r",
+									"                pm.expect(jsonData.token_type).to.be.a(\"string\");\r",
+									"            });\r",
+									"        }\r",
+									"        \r",
+									"        // Optional test: expires_in (does not fail if absent)\r",
+									"        if (jsonData.hasOwnProperty(\"expires_in\")) {\r",
+									"            pm.test(\"expires_in is a number (optional)\", function () {\r",
+									"                pm.expect(jsonData.expires_in).to.be.a(\"number\");\r",
+									"            });\r",
+									"        }\r",
+									"    }\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost/api/auth/refresh",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"api",
+								"auth",
+								"refresh"
+							]
+						},
+						"description": "### Purpose\n\nRefreshes the authentication token by exchanging a valid existing token for a new `access_token`.\n\n### Authentication / Inputs\n\n- This endpoint expects the client to already be authenticated (e.g., using a previously issued token or session managed by the backend).\n    \n- HTTP method: `POST`\n    \n- URL: `/api/auth/refresh`\n    \n- Headers:\n    \n    - `Accept: application/json`\n        \n    - `Content-Type: application/json`\n        \n- Request body: typically empty or contains any data your backend requires for token refresh (this request is currently configured with an empty JSON body).\n    \n\n### Typical Response\n\nA successful `2xx` response is expected to be a JSON object with at least:\n\n- `access_token` (string, required): New token to be used for subsequent authenticated calls.\n    \n- `token_type` (string, optional): Type of token (for example, `Bearer`).\n    \n- `expires_in` (number, optional): Lifetime of the token in seconds.\n    \n\nExample shape:\n\n``` json\n{\n  \"access_token\": \"<new-access-token>\",\n  \"token_type\": \"Bearer\",\n  \"expires_in\": 3600\n}\n\n ```\n\n### Collection Variable Usage\n\nOn a successful `2xx` response, the test script parses the JSON and, if an `access_token` is present and non-empty, it saves it to the **collection variable** `token`:\n\n- Variable name: `token`\n    \n- Scope: collection level\n    \n- Usage: other requests in the **Order Management** collection can reference `{{token}}` (for example in an `Authorization: Bearer {{token}}` header) to authenticate using the refreshed token."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Auth User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost/api/auth/me",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"api",
+								"auth",
+								"me"
+							]
+						},
+						"description": "Returns the currently authenticated user based on the bearer token provided in the `Authorization` header.\n\n**Authentication**\n\n- Requires a valid bearer token (e.g., `Authorization: Bearer` )\n    \n- If the token is missing, expired, or invalid, the endpoint responds with an authentication error (typically `401 Unauthorized`).\n    \n\n**Behavior**\n\n- On success (`200 OK`), returns the user object associated with the provided token.\n    \n- If the user linked to the token no longer exists or is disabled, the endpoint may return an error (commonly `401 Unauthorized`)."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Order",
+			"item": [
+				{
+					"name": "List Orders",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost/api/orders?per_page=12&page=1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"api",
+								"orders"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "confirmed",
+									"disabled": true
+								},
+								{
+									"key": "from",
+									"value": "2025-12-14 00:00:00",
+									"disabled": true
+								},
+								{
+									"key": "to",
+									"value": "2025-12-14 12:00:00",
+									"disabled": true
+								},
+								{
+									"key": "per_page",
+									"value": "12"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Retrieve a paginated list of orders for the authenticated user.\n\n### HTTP\n\n- **Method:** `GET`\n    \n- **URL:** `http://localhost/api/orders`\n    \n- **Auth:** Uses `{{token}}` (bearer or header-based, depending on your collection setup).\n    \n\n### Query Parameters\n\n- `status` _(optional, string)_ – Filter orders by status.\n    - Allowed values (based on current usage): `confirmed`, `cancelled`.\n        \n- `from` _(optional, string, datetime)_ – Start of the order date range filter.\n    - Example: `2025-12-14 00:00:00`\n        \n- `to` _(optional, string, datetime)_ – End of the order date range filter.\n    - Example: `2025-12-14 12:00:00`\n        \n- `per_page` _(optional, integer)_ – Number of orders per page. Example: `12`.\n    \n- `page` _(optional, integer)_ – Page number to retrieve. Example: `1`.\n    \n\n### Successful Response (200)\n\nReturns a JSON object with an array of orders in `data` and pagination info in `meta`.\n\n``` json\n{\n  \"data\": [\n    {\n      \"id\": 3,\n      \"user_id\": 1,\n      \"order_date\": \"2025-12-14 10:00:00\",\n      \"status\": \"cancelled\",\n      \"notes\": \"Testing\",\n      \"created_at\": \"2025-12-14T11:51:00.000000Z\",\n      \"updated_at\": \"2025-12-14T11:51:09.000000Z\",\n      \"total_price\": \"132.750\",\n      \"items\": [\n        {\n          \"id\": 13,\n          \"order_id\": 3,\n          \"product_name\": \"Item 1\",\n          \"quantity\": 10,\n          \"price\": \"12.500\",\n          \"notes\": \"Testing 1\",\n          \"created_at\": \"2025-12-14T11:51:00.000000Z\",\n          \"updated_at\": \"2025-12-14T11:51:00.000000Z\",\n          \"total_price\": \"125\"\n        },\n        {\n          \"id\": 14,\n          \"order_id\": 3,\n          \"product_name\": \"Item 2\",\n          \"quantity\": 5,\n          \"price\": \"1.550\",\n          \"notes\": \"Testing 2\",\n          \"created_at\": \"2025-12-14T11:51:00.000000Z\",\n          \"updated_at\": \"2025-12-14T11:51:00.000000Z\",\n          \"total_price\": \"7.75\"\n        }\n      ]\n    }\n  ],\n  \"meta\": {\n    \"current_page\": 1,\n    \"per_page\": 12,\n    \"total\": 2,\n    \"last_page\": 1\n  }\n}\n\n ```\n\n#### `data[]` (Order)\n\n- `id` _(integer)_ – Order ID.\n    \n- `user_id` _(integer)_ – ID of the user who owns the order.\n    \n- `order_date` _(string, datetime)_ – When the order was placed.\n    \n- `status` _(string)_ – Current order status (for example, `confirmed`, `cancelled`).\n    \n- `notes` _(string|null)_ – Optional notes attached to the order.\n    \n- `total_price` _(string)_ – Total price of the order.\n    \n- `items` _(array)_ – Line items belonging to the order.\n    \n\n#### `data[].items[]` (Order Item)\n\n- `id` _(integer)_ – Line item ID.\n    \n- `order_id` _(integer)_ – Associated order ID.\n    \n- `product_name` _(string)_ – Name/description of the product.\n    \n- `quantity` _(integer)_ – Quantity ordered.\n    \n- `price` _(string)_ – Unit price.\n    \n- `notes` _(string|null)_ – Optional item-level notes.\n    \n- `total_price` _(string)_ – `quantity \\* price` for this item.\n    \n\n#### `meta`\n\n- `current_page` _(integer)_ – Current page number.\n    \n- `per_page` _(integer)_ – Number of orders per page.\n    \n- `total` _(integer)_ – Total number of matching orders.\n    \n- `last_page` _(integer)_ – Last available page index."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Order",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"order_date\": \"2025-12-14 10:00:00\",\r\n    \"notes\": \"Testing\",\r\n    \"items\": [\r\n        {\r\n            \"product_name\": \"Item 1\",\r\n            \"quantity\": 10,\r\n            \"price\": 12.5,\r\n            \"notes\": \"Testing 1\"\r\n        },\r\n        {\r\n            \"product_name\": \"Item 2\",\r\n            \"quantity\": 5,\r\n            \"price\": 1.55,\r\n            \"notes\": \"Testing 2\"\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost/api/orders",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"api",
+								"orders"
+							]
+						},
+						"description": "### Create Order\n\nCreate a new order with one or more line items.\n\n---\n\n**URL**  \n`POST http://localhost/api/orders`\n\n**Headers**\n- `Accept: application/json`\n- `Content-Type: application/json`\n\n---\n\n## Request Body\n\n**Content-Type:** `application/json`\n\n```json\n{\n  \"order_date\": \"2025-12-14 10:00:00\",\n  \"notes\": \"string (optional)\",\n  \"items\": [\n    {\n      \"product_name\": \"string\",\n      \"quantity\": 0,\n      \"price\": 0,\n      \"notes\": \"string (optional)\"\n    }\n  ]\n}\n```\n\n**Field details**\n- `order_date` (string, required): Datetime when the order is created or scheduled, e.g. `\"2025-12-14 10:00:00\"`.\n- `notes` (string, optional): Free-form notes about the order.\n- `items` (array, required): List of order line items.\n  - `product_name` (string, required): Name/description of the product.\n  - `quantity` (number, required): Quantity of the product.\n  - `price` (number, required): Unit price of the product.\n  - `notes` (string, optional): Notes specific to this line item.\n\n### Sample Request Body\n\n```json\n{\n  \"order_date\": \"2025-12-14 10:00:00\",\n  \"notes\": \"Testing\",\n  \"items\": [\n    {\n      \"product_name\": \"Item 1\",\n      \"quantity\": 10,\n      \"price\": 12.5,\n      \"notes\": \"Testing 1\"\n    },\n    {\n      \"product_name\": \"Item 2\",\n      \"quantity\": 5,\n      \"price\": 1.55,\n      \"notes\": \"Testing 2\"\n    }\n  ]\n}\n```\n\n---\n\n## Example Response\n\n**Status:** `201 Created`\n\n```json\n{\n  \"user_id\": 1,\n  \"status\": \"pending\",\n  \"order_date\": \"2025-12-14 10:00:00\",\n  \"notes\": \"Testing\",\n  \"updated_at\": \"2025-12-14T15:07:10.000000Z\",\n  \"created_at\": \"2025-12-14T15:07:10.000000Z\",\n  \"id\": 5,\n  \"items\": [\n    {\n      \"order_id\": 5,\n      \"product_name\": \"Item 1\",\n      \"quantity\": 10,\n      \"price\": \"12.500\",\n      \"notes\": \"Testing 1\",\n      \"updated_at\": \"2025-12-14T15:07:10.000000Z\",\n      \"created_at\": \"2025-12-14T15:07:10.000000Z\",\n      \"id\": 17,\n      \"total_price\": \"125\"\n    },\n    {\n      \"order_id\": 5,\n      \"product_name\": \"Item 2\",\n      \"quantity\": 5,\n      \"price\": \"1.550\",\n      \"notes\": \"Testing 2\",\n      \"updated_at\": \"2025-12-14T15:07:10.000000Z\",\n      \"created_at\": \"2025-12-14T15:07:10.000000Z\",\n      \"id\": 18,\n      \"total_price\": \"7.75\"\n    }\n  ],\n  \"total_price\": \"132.750\"\n}\n```"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Order",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"order_date\": \"2025-12-14 10:00:00\",\r\n    \"notes\": \"Testing\",\r\n    \"items\": [\r\n        {\r\n            \"product_name\": \"Item 1U\",\r\n            \"quantity\": 9,\r\n            \"price\": 12.5,\r\n            \"notes\": \"Testing 1\"\r\n        },\r\n        {\r\n            \"product_name\": \"Item 2U\",\r\n            \"quantity\": 5,\r\n            \"price\": 1.75,\r\n            \"notes\": \"Testing 2\"\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "markdown"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost/api/orders/:order_id",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"api",
+								"orders",
+								":order_id"
+							],
+							"variable": [
+								{
+									"key": "order_id",
+									"value": "2"
+								}
+							]
+						},
+						"description": "## Purpose\n\nUpdate an existing order and its line items.\n\nUse this endpoint to change an order's date, notes, or the list of items (including quantities and prices).\n\n---\n\n## URL and Path Variable\n\n- **Method:** `PUT`\n    \n- **URL:** `http://localhost/api/orders/:order_id`\n    \n- **Path variable:**\n    - `order_id` (integer) – ID of the order you want to update (for example, `2`).\n        \n\n---\n\n## Authentication\n\n- Typically uses a bearer token (for example, via a `token` variable) sent in an `Authorization` header.\n    \n- Make sure you are logged in and that the token is valid before calling this endpoint.\n    \n\n---\n\n## Request Headers\n\n- `Accept: application/json`\n    \n- `Content-Type: application/json`\n    \n\n---\n\n## Request Body Schema (JSON)\n\nThe body must be a JSON object with these fields:\n\n``` json\n{\n  \"order_date\": \"string (datetime)\",\n  \"notes\": \"string\",\n  \"items\": [\n    {\n      \"product_name\": \"string\",\n      \"quantity\": number,\n      \"price\": number,\n      \"notes\": \"string\"\n    }\n  ]\n}\n\n ```\n\n### Field details\n\n- `order_date` (string, required)\n    - The date and time of the order, e.g. `\"2025-12-14 10:00:00\"`.\n        \n- `notes` (string, optional)\n    - Free‑text notes about the order.\n        \n- `items` (array of objects, required)\n    - Each object represents one line item in the order:\n        - `product_name` (string, required) – Name of the product.\n            \n        - `quantity` (number, required) – Quantity ordered.\n            \n        - `price` (number, required) – Unit price for the product.\n            \n        - `notes` (string, optional) – Notes specific to this item.\n            \n\n---\n\n## Example Request Body\n\nThis example matches the current configured body for this request:\n\n``` json\n{\n  \"order_date\": \"2025-12-14 10:00:00\",\n  \"notes\": \"Testing\",\n  \"items\": [\n    {\n      \"product_name\": \"Item 1U\",\n      \"quantity\": 9,\n      \"price\": 12.5,\n      \"notes\": \"Testing 1\"\n    },\n    {\n      \"product_name\": \"Item 2U\",\n      \"quantity\": 5,\n      \"price\": 1.75,\n      \"notes\": \"Testing 2\"\n    }\n  ]\n}\n\n ```\n\n---\n\n## Typical Usage\n\n1. Retrieve or know the `order_id` of the order you want to modify.\n    \n2. Prepare the JSON body with the updated `order_date`, `notes`, and `items` list.\n    \n3. Ensure your auth token (`token` variable) is set and being sent in the request headers.\n    \n4. Send the `PUT` request to update the order."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Order",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost/api/orders/:order_id",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"api",
+								"orders",
+								":order_id"
+							],
+							"variable": [
+								{
+									"key": "order_id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Deletes an existing order by its unique identifier.\n\n## Overview\n\nUse this endpoint to **permanently delete an order** from the system. This is typically used for clean-up operations (e.g., test data) or when an order must be removed due to business or compliance reasons.\n\n> **Note:** Deletion is irreversible. Once an order is deleted, it cannot be restored. \n  \n\n## HTTP Request\n\n`DELETE /api/orders/:order_id`\n\n### Path Variables\n\n- `order_id` (integer, required): The unique ID of the order to delete.\n    \n\nExample:\n\n``` http\nDELETE /api/orders/1 HTTP/1.1\nHost: localhost\nAccept: application/json\nContent-Type: application/json\nAuthorization: Bearer <token>\n\n ```\n\n## Authentication\n\nThis endpoint **requires authentication**.\n\n- **Type:** Bearer token (JWT or similar)\n    \n- **Header:** `Authorization: Bearer {{token}}`\n    \n- The `token` variable should contain a valid access token obtained from the authentication/login endpoint.\n    \n\nIf the token is missing, expired, or invalid, the request will fail with an authentication error.\n\n## Headers\n\n- `Accept: application/json`\n    \n- `Content-Type: application/json`\n    \n- `Authorization: Bearer` (required)\n    \n\n## Typical Responses\n\n### 200 OK\n\nThe order was successfully deleted.\n\nExample response:\n\n``` json\n{\n  \"success\": true,\n  \"message\": \"Order deleted successfully\",\n  \"order_id\": 1\n}\n\n ```\n\n### 204 No Content\n\nIn some implementations, a successful delete may return `204 No Content` with an empty body.\n\n### 400 Bad Request\n\nThe provided `order_id` is invalid (e.g., not a number or negative) or the request is malformed.\n\nExample response:\n\n``` json\n{\n  \"success\": false,\n  \"message\": \"Invalid order_id\"\n}\n\n ```\n\n### 401 Unauthorized\n\nAuthentication token is missing, invalid, or expired.\n\nExample response:\n\n``` json\n{\n  \"success\": false,\n  \"message\": \"Unauthorized\"\n}\n\n ```\n\n### 403 Forbidden\n\nThe authenticated user does not have permission to delete this order.\n\nExample response:\n\n``` json\n{\n  \"success\": false,\n  \"message\": \"Forbidden\"\n}\n\n ```\n\n### 404 Not Found\n\nNo order exists with the specified `order_id`.\n\nExample response:\n\n``` json\n{\n  \"success\": false,\n  \"message\": \"Order not found\",\n  \"order_id\": 9999\n}\n\n ```\n\n### 409 Conflict (Optional)\n\nThe order cannot be deleted due to its current state (e.g., already processed or locked).\n\nExample response:\n\n``` json\n{\n  \"success\": false,\n  \"message\": \"Order cannot be deleted in its current state\",\n  \"order_id\": 1\n}\n\n ```\n\n### 500 Internal Server Error\n\nAn unexpected error occurred on the server.\n\nExample response:\n\n``` json\n{\n  \"success\": false,\n  \"message\": \"Internal server error\"\n}\n\n ```\n\n## Usage Notes\n\n- Use this endpoint with caution in production environments.\n    \n- Prefer soft deletes (status flags) at the business layer when historical data retention is required.\n    \n- Ensure that related resources (e.g., payments, shipments) are handled according to your domain rules before deleting an order."
+					},
+					"response": []
+				},
+				{
+					"name": "Confirm Order",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost/api/orders/:order_id/confirm",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"api",
+								"orders",
+								":order_id",
+								"confirm"
+							],
+							"variable": [
+								{
+									"key": "order_id",
+									"value": "5"
+								}
+							]
+						},
+						"description": "## Confirm Order\n\nConfirm an existing order by ID and retrieve its latest confirmed state, including line items and pricing details.\n\n---\n\n### Request\n\n- **Method:** `POST`\n    \n- **URL:** `http://localhost/api/orders/:order_id/confirm`\n    \n- **Path variables:**\n    - `order_id` (integer, required) – ID of the order to confirm. Example: `5`.\n        \n\nThis endpoint performs a _state transition_ for the order from a non-confirmed status (e.g., `draft`, `pending`) to `confirmed`.\n\n> Note: This request does **not** send a body. All required information must already exist on the server for the given `order_id`. \n  \n\n---\n\n### Headers\n\nThese headers are currently configured on the request:\n\n- `Accept: application/json`\n    \n- `Content-Type: application/json`\n    \n\n---\n\n### Authentication\n\n- A `token` variable is referenced for this request. Ensure your auth token is set appropriately (for example, as a header like `Authorization: Bearer {{token}}` at the collection/folder/request level) according to your API’s auth scheme.\n    \n- The request will use whatever authentication is configured on the parent collection/folder or the request itself.\n    \n\n---\n\n### Successful Response Example (200 OK)\n\nA successful confirmation returns the updated order resource, including items and totals. Example:\n\n``` json\n{\n  \"id\": 5,\n  \"user_id\": 1,\n  \"order_date\": \"2025-12-14 10:00:00\",\n  \"status\": \"confirmed\",\n  \"notes\": \"Testing\",\n  \"created_at\": \"2025-12-14T15:07:10.000000Z\",\n  \"updated_at\": \"2025-12-14T15:07:19.000000Z\",\n  \"total_price\": \"132.750\",\n  \"items\": [\n    {\n      \"id\": 17,\n      \"order_id\": 5,\n      \"product_name\": \"Item 1\",\n      \"quantity\": 10,\n      \"price\": \"12.500\",\n      \"notes\": \"Testing 1\",\n      \"created_at\": \"2025-12-14T15:07:10.000000Z\",\n      \"updated_at\": \"2025-12-14T15:07:10.000000Z\",\n      \"total_price\": \"125\"\n    },\n    {\n      \"id\": 18,\n      \"order_id\": 5,\n      \"product_name\": \"Item 2\",\n      \"quantity\": 5,\n      \"price\": \"1.550\",\n      \"notes\": \"Testing 2\",\n      \"created_at\": \"2025-12-14T15:07:10.000000Z\",\n      \"updated_at\": \"2025-12-14T15:07:10.000000Z\",\n      \"total_price\": \"7.75\"\n    }\n  ]\n}\n\n ```\n\nKey points:\n\n- `status` should be `\"confirmed\"` after a successful call.\n    \n- `total_price` reflects the sum of all item totals.\n    \n- Each item contains its own `total_price` so you can verify pricing per line item.\n    \n\n---\n\n### Usage Notes\n\n- Use this request after creating or updating an order to finalize it.\n    \n- Make sure the order exists and is in a state that can be confirmed; otherwise the API may return an error (e.g., 4xx).\n    \n- If you are running multiple environments (local, staging, production), consider parameterizing the base URL and `token` via environment variables (e.g., `{{base_url}}/api/orders/:order_id/confirm`).\n    \n- For automated flows, you can chain the `order_id` from a prior request (such as \"Create Order\") into this request’s `order_id` path variable using variables or test scripts."
+					},
+					"response": []
+				},
+				{
+					"name": "Cancel Order",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost/api/orders/:order_id/cancel",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"api",
+								"orders",
+								":order_id",
+								"cancel"
+							],
+							"variable": [
+								{
+									"key": "order_id",
+									"value": "3"
+								}
+							]
+						},
+						"description": "### Cancel Order\n\nCancel an existing order by its identifier.\n\n---\n\n#### HTTP Request\n- **Method:** `POST`\n- **Path:** `/api/orders/:order_id/cancel`\n- **Base URL:** typically `http://localhost` in local environments\n\n`order_id` is provided as a **path variable** and identifies the order to be cancelled.\n\n#### Path Variables\n- `order_id` (integer/string)\n  - Required\n  - The unique identifier of the order you want to cancel.\n\n#### Authentication\n- This endpoint expects a valid authentication **token** (for example, a bearer token or session token) to be provided.\n- How the `token` is supplied depends on your overall API design (e.g., as an `Authorization` header or query parameter). Ensure it is set wherever your other authenticated endpoints read it.\n\n#### Headers\n- `Accept: application/json`\n- `Content-Type: application/json`\n\n#### Request Body\n- **None**\n- This request does not send a body; all required data is supplied via the path and auth context.\n\n#### Behavior\n- Attempts to cancel the order identified by `order_id`.\n- Typical rules (may vary by implementation):\n  - Only orders in a cancellable state (e.g., `pending`, `processing`) can be cancelled.\n  - Orders already shipped, completed, or previously cancelled will not be changed and should return an appropriate error response.\n  - Authorization and ownership checks should ensure that the caller is allowed to cancel the target order.\n\n#### Typical Responses\n- **200 OK**\n  - Order was successfully cancelled.\n  - Response body usually includes the updated order resource (for example, with `status: \"cancelled\"`).\n- **400 Bad Request**\n  - Invalid `order_id` format or the order cannot be cancelled due to business rules (e.g., already shipped or completed).\n- **401 Unauthorized / 403 Forbidden**\n  - Missing, invalid, or insufficient permissions for the provided `token`.\n- **404 Not Found**\n  - No order exists with the given `order_id`.\n- **500 Internal Server Error**\n  - An unexpected error occurred while attempting to cancel the order.\n\nUse this endpoint in workflows where a customer or admin needs to reverse or void an order before it reaches a non-cancellable state."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Gateway",
+			"item": [
+				{
+					"name": "List Gateways",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost/api/gateways",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"api",
+								"gateways"
+							]
+						},
+						"description": "Lists all payment gateways configured in the system.\n\n**Method & URL**\n\n- `GET http://localhost/api/gateways`\n    \n\n**Authentication**\n\n- Expects a valid bearer token provided via the `{{token}}` variable (e.g. collection/environment variable).\n    \n- Auth is applied using the `Authorization: Bearer {{token}}` header (not shown directly in this request, but inferred from the `token` variable usage).\n    \n\n**Headers**\n\n- `Accept: application/json`\n    \n- `Content-Type: application/json`\n    \n\n**Response**\n\n- Returns `200 OK` with a JSON body containing a `data` array of gateway objects.\n    \n\nExample response shape:\n\n``` json\n{\n  \"data\": [\n    {\n      \"id\": 2,\n      \"name\": \"Testing\",\n      \"class_name\": \"FakeGateway\",\n      \"config\": {\n        \"secret\": \"secret\",\n        \"api_key\": \"test\"\n      },\n      \"created_at\": \"2025-12-14T12:02:19.000000Z\",\n      \"updated_at\": \"2025-12-14T12:02:30.000000Z\"\n    }\n  ]\n}\n\n ```\n\n**Fields**\n\n- `data[]` – Array of gateway objects\n    - `id` _(integer)_ – Unique identifier of the gateway\n        \n    - `name` _(string)_ – Human‑readable gateway name\n        \n    - `class_name` _(string)_ – Backend class/driver used to handle this gateway\n        \n    - `config` _(object)_ – Gateway-specific configuration (for example, API keys and secrets)\n        \n    - `created_at` _(string, datetime)_ – Creation timestamp (ISO 8601)\n        \n    - `updated_at` _(string, datetime)_ – Last update timestamp (ISO 8601)"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Gateway",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Testing\",\r\n    \"class_name\": \"FakeGateway\",\r\n    \"config\": {\r\n        \"api_key\": \"test\",\r\n        \"secret\": \"secret\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost/api/gateways",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"api",
+								"gateways"
+							]
+						},
+						"description": "### Create Gateway\n\nThe **Create Gateway** request creates a new payment gateway configuration that your payment system can use to process transactions.\n\n**1\\. Purpose**\n\n- Creates and persists a new payment gateway record.\n    \n- Stores gateway type and credentials so it can be referenced by other payment and order APIs.\n    \n\n**2\\. Method and URL**\n\n- **Method:** `POST`\n    \n- **URL:** `http://localhost/api/gateways`\n    \n\n**3\\. Required Headers**\n\n- `Accept: application/json`  \n    Indicates the client expects a JSON response.\n    \n- `Content-Type: application/json`  \n    Indicates the request body is JSON.\n    \n\n**4\\. Request Body (JSON)**  \nAll fields shown below are **required** unless noted otherwise.\n\n``` json\n{\n  \"name\": \"Testing\",\n  \"class_name\": \"FakeGateway\",\n  \"config\": {\n    \"api_key\": \"test\",\n    \"secret\": \"secret\"\n  }\n}\n\n ```\n\n- `name` _(string, required)_ – Human-readable name for the gateway (e.g., `\"Stripe\"`, `\"PayPal\"`).\n    \n- `class_name` _(string, required)_ – Backend gateway implementation or driver identifier (e.g., `\"StripeGateway\"`, `\"FakeGateway\"`).\n    \n- `config` _(object, required)_ – Configuration object holding gateway credentials and related settings.\n    - `config.api_key` _(string, required)_ – API key or public credential for the gateway.\n        \n    - `config.secret` _(string, required)_ – Secret key or private credential for the gateway.\n        \n\n**5\\. Example 201 Created Response**  \nOn success, the API responds with HTTP **201 Created** and a JSON body similar to the following:\n\n``` json\n{\n  \"message\": \"Gateway created successfully.\",\n  \"data\": {\n    \"name\": \"Testing\",\n    \"class_name\": \"FakeGateway\",\n    \"config\": {\n      \"api_key\": \"test\",\n      \"secret\": \"secret\"\n    },\n    \"updated_at\": \"2025-12-14T12:02:19.000000Z\",\n    \"created_at\": \"2025-12-14T12:02:19.000000Z\",\n    \"id\": 2\n  }\n}\n\n ```\n\nUse the **Create Gateway** request before invoking payment or order flows that depend on an existing gateway configuration."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Gateway",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Testing\",\r\n    \"class_name\": \"FakeGateway\",\r\n    \"config\": {\r\n        \"api_key\": \"test\",\r\n        \"secret\": \"secret\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost/api/gateways/:gateway_id",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"api",
+								"gateways",
+								":gateway_id"
+							],
+							"variable": [
+								{
+									"key": "gateway_id",
+									"value": "2"
+								}
+							]
+						},
+						"description": "**Endpoint**\n\n`PUT /api/gateways/:gateway_id`\n\nUpdates an existing payment gateway by its unique ID.\n\n---\n\n### Path variables\n\n- `gateway_id` (integer, required): ID of the gateway to update. Example: `2`.\n    \n\n---\n\n### Request headers\n\n- `Accept: application/json`\n    \n- `Content-Type: application/json`\n    \n\n---\n\n### Request body (JSON)\n\n``` json\n{\n  \"name\": \"Testing\",\n  \"class_name\": \"FakeGateway\",\n  \"config\": {\n    \"api_key\": \"test\",\n    \"secret\": \"secret\"\n  }\n}\n\n ```\n\n**Fields**\n\n- `name` (string, required): Human-readable name of the gateway.\n    \n- `class_name` (string, required): Backend implementation or driver class used for this gateway.\n    \n- `config` (object, required): Configuration details for the gateway.\n    - `config.api_key` (string, required): Public or API key for authenticating with the underlying payment provider.\n        \n    - `config.secret` (string, required): Secret key/credential used to sign or authorize requests.\n        \n\n---\n\n### Example\n\n**Example request**\n\n`PUT http://localhost/api/gateways/2`\n\n``` json\n{\n  \"name\": \"Testing\",\n  \"class_name\": \"FakeGateway\",\n  \"config\": {\n    \"api_key\": \"test\",\n    \"secret\": \"secret\"\n  }\n}\n\n ```\n\n**Example response (200 OK)**\n\n``` json\n{\n  \"message\": \"Gateway updated successfully.\",\n  \"data\": {\n    \"id\": 2,\n    \"name\": \"Testing\",\n    \"class_name\": \"FakeGateway\",\n    \"config\": {\n      \"secret\": \"secret\",\n      \"api_key\": \"test\"\n    },\n    \"created_at\": \"2025-12-14T12:02:19.000000Z\",\n    \"updated_at\": \"2025-12-14T12:02:30.000000Z\"\n  }\n}\n\n ```"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Gateway",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost/api/gateways/:gateway_id",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"api",
+								"gateways",
+								":gateway_id"
+							],
+							"variable": [
+								{
+									"key": "gateway_id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Deletes an existing gateway by its unique identifier.\n\n## Summary\n\nUse this endpoint to permanently remove a gateway from the system. Once deleted, the gateway will no longer be available for processing orders or payments.\n\n- **Method:** `DELETE`\n    \n- **URL:** `http://localhost/api/gateways/:gateway_id`\n    \n\n## Authentication\n\nThis request requires a valid bearer token, typically stored in the `{{token}}` variable and applied via the workspace/environment auth settings or an `Authorization` header.\n\n## Path Variables\n\n- `gateway_id` (required, integer) – ID of the gateway to delete. Example: `1`.\n    \n\n## Headers\n\n- `Accept: application/json`\n    \n- `Content-Type: application/json`\n    \n\n## Successful Response\n\n**Status:** `200 OK`\n\n**Body:**\n\n``` json\n{\n  \"message\": \"Gateway deleted successfully.\"\n}\n\n ```\n\n## Error Cases\n\nTypical error scenarios may include (implementation-specific):\n\n- `400 Bad Request` – Invalid or missing `gateway_id`.\n    \n- `401 Unauthorized` – Missing or invalid authentication token.\n    \n- `404 Not Found` – No gateway exists with the given `gateway_id`.\n    \n- `500 Internal Server Error` – Unexpected server error while deleting the gateway.\n    \n\n## Side Effects\n\n- The specified gateway is permanently removed and cannot be used in new operations.\n    \n- Existing orders/payments linked to this gateway may be affected depending on backend implementation."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Payment",
+			"item": [
+				{
+					"name": "List Payments",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost/api/payments?per_page=12&page=1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"api",
+								"payments"
+							],
+							"query": [
+								{
+									"key": "order_id",
+									"value": "2",
+									"disabled": true
+								},
+								{
+									"key": "per_page",
+									"value": "12"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Retrieves a paginated list of payments, optionally filtered by `order_id`.\n\n**Endpoint**\n\n`GET /api/payments`\n\n### Query Parameters\n\n- `order_id` *(integer, optional)* – Filter payments for a specific order. Example: `order_id=2`.\n- `per_page` *(integer, optional)* – Number of records per page. Example: `per_page=12`.\n- `page` *(integer, optional)* – Page number to retrieve. Example: `page=1`.\n\n### Authentication\n\n- Expects a valid authentication context (for example, a bearer token or session) to be present.\n- This request currently uses a `{{token}}` variable for auth in the workspace; ensure it is set before calling this endpoint.\n\n### Successful Response (200)\n\nReturns a paginated list of payments with related order and gateway details. Example structure:\n\n```json\n{\n  \"current_page\": 1,\n  \"data\": [\n    {\n      \"id\": 3,\n      \"order_id\": 2,\n      \"gateway_id\": 2,\n      \"gateway_payment_id\": \"fake_7d2f7b5b-9e7d-44ed-a0fb-ddee2837421...\",\n      \"payment_method\": \"card\",\n      \"payment_date\": \"2025-12-14 14:25:37\",\n      \"status\": \"pending\",\n      \"notes\": \"Test Payments\",\n      \"created_at\": \"2025-12-14T14:25:37.000000Z\",\n      \"updated_at\": \"2025-12-14T14:25:37.000000Z\",\n      \"order\": {\n        \"id\": 2,\n        \"user_id\": 1,\n        \"order_date\": \"2025-12-14 10:00:00\",\n        \"status\": \"confirmed\",\n        \"notes\": \"Testing\",\n        \"created_at\": \"2025-12-14T11:30:23.000000Z\",\n        \"updated_at\": \"2025-12-14T11:50:01.000000Z\",\n        \"total_price\": \"121.250\"\n      },\n      \"gateway\": {\n        \"id\": 2,\n        \"name\": \"Testing\",\n        \"class_name\": \"FakeGateway\",\n        \"config\": {\n          \"secret\": \"secret\",\n          \"api_key\": \"test\"\n        },\n        \"created_at\": \"2025-12-14T12:02:19.000000Z\",\n        \"updated_at\": \"2025-12-14T12:02:30.000000Z\"\n      }\n    }\n  ],\n  \"first_page_url\": \"http://localhost/api/payments?page=1\",\n  \"from\": 1,\n  \"last_page\": 1,\n  \"last_page_url\": \"http://localhost/api/payments?page=1\",\n  \"links\": [],\n  \"next_page_url\": null,\n  \"path\": \"http://localhost/api/payments\",\n  \"per_page\": 12,\n  \"prev_page_url\": null,\n  \"to\": 3,\n  \"total\": 3\n}\n```\n"
+					},
+					"response": []
+				},
+				{
+					"name": "Process Payment",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"gateway_id\": 2,\r\n    \"payment_method\": \"card\",\r\n    \"notes\": \"Test Payments\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost/api/orders/:order_id/payments/process",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"api",
+								"orders",
+								":order_id",
+								"payments",
+								"process"
+							],
+							"variable": [
+								{
+									"key": "order_id",
+									"value": "5"
+								}
+							]
+						},
+						"description": "### Process Payment for Order\n\nInitiates payment processing for an existing order using a configured payment gateway. This endpoint creates a payment record for the specified order and returns the initialized payment details.\n\n---\n\n#### URL\n`POST http://localhost/api/orders/:order_id/payments/process`\n\n#### Path variables\n- `order_id` (integer, required) – ID of the order to process payment for.\n\n#### Headers\n- `Accept: application/json`\n- `Content-Type: application/json`\n\n#### Request body (JSON)\n```json\n{\n  \"gateway_id\": 2,\n  \"payment_method\": \"card\",\n  \"notes\": \"Test Payments\"\n}\n```\n\n**Fields**\n- `gateway_id` (integer, required) – Identifier of the payment gateway to use (e.g., `2` for the \"Testing\" gateway).\n- `payment_method` (string, required) – Payment method to use. Currently supports `\"card\"`.\n- `notes` (string, optional) – Additional information or comments about this payment.\n\n#### Successful response (201 Created)\nOn success, the API returns a JSON object with a confirmation message and the initialized payment details, including related order and gateway information. Example shape:\n\n```json\n{\n  \"message\": \"Payment initialized.\",\n  \"data\": {\n    \"id\": 5,\n    \"order_id\": 5,\n    \"gateway_id\": 2,\n    \"gateway_payment_id\": \"...\",\n    \"payment_method\": \"card\",\n    \"payment_date\": \"2025-12-14 15:07:27\",\n    \"status\": \"pending\",\n    \"notes\": \"Test Payments\",\n    \"created_at\": \"2025-12-14T15:07:27.000000Z\",\n    \"updated_at\": \"2025-12-14T15:07:28.000000Z\",\n    \"order\": {\n      \"id\": 5,\n      \"user_id\": 1,\n      \"order_date\": \"2025-12-14 10:00:00\",\n      \"status\": \"confirmed\",\n      \"notes\": \"Testing\",\n      \"created_at\": \"2025-12-14T15:07:10.000000Z\",\n      \"updated_at\": \"2025-12-14T15:07:19.000000Z\",\n      \"total_price\": \"132.750\"\n    },\n    \"gateway\": {\n      \"id\": 2,\n      \"name\": \"Testing\",\n      \"class_name\": \"FakeGateway\",\n      \"config\": {\n        \"secret\": \"secret\",\n        \"api_key\": \"test\"\n      },\n      \"created_at\": \"2025-12-14T12:02:19.000000Z\",\n      \"updated_at\": \"2025-12-14T12:02:30.000000Z\"\n    }\n  }\n}\n```\n\nThe `status` field will typically be `\"pending\"` immediately after initialization."
+					},
+					"response": []
+				},
+				{
+					"name": "Payment Webhook",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"payment_id\": \"fake_9a358071-5b46-4ecd-bd2d-81bd80faa042\",\r\n    \"status\": \"successful\",\r\n    \"paid_at\": \"2025-12-14 14:00:00\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost/api/payments/webhook/:gateway_id",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"api",
+								"payments",
+								"webhook",
+								":gateway_id"
+							],
+							"variable": [
+								{
+									"key": "gateway_id",
+									"value": "2"
+								}
+							]
+						},
+						"description": "### Payment Webhook\n\nThis endpoint receives asynchronous payment status notifications from an external payment gateway. It is typically called by the gateway (server-to-server) after a payment attempt, so your system can update internal payment and order records.\n\n#### URL & Path Variable\n- `POST /api/payments/webhook/:gateway_id`\n- `:gateway_id` — Identifier of the payment gateway configuration in your system (e.g., `2` for a specific provider). Use it to route/validate the notification against the correct gateway settings.\n\n#### Required Headers\n- `Accept: application/json`\n- `Content-Type: application/json`\n\n#### Expected JSON Payload\n```json\n{\n  \"payment_id\": \"fake_9a358071-5b46-4ecd-bd2d-81bd80faa042\",\n  \"status\": \"successful\",\n  \"paid_at\": \"2025-12-14 14:00:00\"\n}\n```\n\nField notes:\n- `payment_id` (string) — Unique identifier of the payment in the gateway or your system; used to look up and update the corresponding payment record.\n- `status` (string) — Current status of the payment (e.g., `successful`, `failed`, `pending`). Your backend should use this to drive business logic (order confirmation, cancellation, retries, etc.).\n- `paid_at` (string, datetime) — Timestamp when the payment was completed/updated, in server-provided format (e.g., `YYYY-MM-DD HH:mm:ss`).\n\n#### Typical Usage\n- Backend exposes this endpoint as a public (but authenticated/validated) webhook URL and configures it in the payment gateway dashboard.\n- When a customer completes a checkout, the gateway calls this webhook with the payload above.\n- Your backend:\n  - Validates the request (signature, IP allowlist, gateway ID, etc.).\n  - Locates the payment by `payment_id`.\n  - Updates payment and related order state based on `status`.\n  - Returns an appropriate acknowledgment response to the gateway."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Get User",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost/api/user",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"api",
+						"user"
+					]
+				},
+				"description": "## Overview\n\nFetches the **currently authenticated user** associated with the Bearer token sent in the request.\n\n- **Method:** `GET`\n    \n- **URL:** `http://localhost/api/user`\n    \n- **Returns:** Basic profile details for the logged-in user\n    \n\n---\n\n## Authentication\n\nThis endpoint **requires authentication**.\n\n- Type: **Bearer Token**\n    \n- Source: Postman variable `{{token}}`\n    \n- Usage: Set the `Authorization` header to:\n    \n\n``` http\nAuthorization: Bearer {{token}}\n\n ```\n\nIf `{{token}}` is not set or is invalid/expired, the request will fail with a 401 error.\n\n---\n\n## Successful Response\n\nOn success, the API returns status **`200 OK`** with a JSON object describing the current user. A typical response looks like:\n\n``` json\n{\n  \"id\": 1,\n  \"name\": \"Jane Doe\",\n  \"email\": \"jane.doe@example.com\",\n  \"roles\": [\"customer\", \"admin\"]\n}\n\n ```\n\n- `id` – Unique identifier of the user\n    \n- `name` – Display name of the user\n    \n- `email` – Primary email address\n    \n- `roles` – List of roles/permissions associated with the user\n    \n\n---\n\n## Error Responses\n\nCommon error cases:\n\n- **401 Unauthorized**\n    \n    - Occurs when the Bearer token is **missing**, **invalid**, or **expired**.\n        \n    - Example:\n        \n    \n    ``` json\n    {\n      \"message\": \"Unauthenticated.\"\n    }\n    \n     ```\n    \n- **500 Internal Server Error**\n    \n    - Indicates an unexpected error on the server while resolving the current user.\n        \n    - Check server logs and try again later."
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "token",
+			"value": ""
+		}
+	]
+}

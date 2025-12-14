@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Order;
 
-use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Order\Payment\PaymentIndexRequest;
+use App\Http\Requests\Order\Payment\PaymentProcessRequest;
 use App\Models\Gateway;
 use App\Models\Order;
 use App\Models\Payment;
@@ -18,19 +19,13 @@ class PaymentController extends Controller
     /**
      * Process payment for a confirmed order (creates Payment + initPayment at gateway).
      */
-    public function process(Request $request, Order $order): JsonResponse
+    public function process(PaymentProcessRequest $request, Order $order): JsonResponse
     {
-        $data = $request->validate([
-            'gateway_id' => ['required', 'integer', 'exists:gateways,id'],
-            'payment_method' => ['nullable', 'string', 'max:100'],
-            'notes' => ['nullable', 'string', 'max:1000'],
-        ]);
+        $data = $request->validated();
 
-        // NOTE: adjust this to your actual confirmed status representation.
-        // If you use enums, replace 'confirmed' with OrderStatus::CONFIRMED->value
-        if ($order->status != OrderStatus::CONFIRMED->value) {
+        if ($order->payment()->exists()) {
             return response()->json([
-                'message' => 'Order must be confirmed before processing payment.',
+                'message' => 'This order already has a payment.',
             ], 422);
         }
 
@@ -38,6 +33,10 @@ class PaymentController extends Controller
         $gatewayDriver = $this->resolveGatewayDriver($gateway);
 
         $payment = DB::transaction(function () use ($order, $gateway, $gatewayDriver, $data): Payment {
+            if ($order->payment()->exists()) {
+                abort(422, 'This order already has a payment.');
+            }
+
             $payment = Payment::query()->create([
                 'order_id' => $order->id,
                 'gateway_id' => $gateway->id,
@@ -49,7 +48,8 @@ class PaymentController extends Controller
                 'notes' => $data['notes'] ?? null,
             ]);
 
-            $gatewayPaymentId = $gatewayDriver->initPayment($order, $gateway, $payment);
+            $result = $gatewayDriver->initPayment($order, $gateway, $payment);
+            $gatewayPaymentId = $result['gateway_payment_id'];
 
             $payment->update([
                 'gateway_payment_id' => $gatewayPaymentId,
@@ -64,10 +64,10 @@ class PaymentController extends Controller
         ], 201);
     }
 
-    /**
-     * Webhook endpoint for gateway updates (finalize payment).
-     * Usually public (no auth), but you should protect it with signature verification per gateway.
-     */
+    // *
+    // * Webhook endpoint for gateway updates (finalize payment).
+    // * Usually public (no auth), but you should protect it with signature verification per gateway.
+
     public function webhook(Request $request, Gateway $gateway): JsonResponse
     {
         $gatewayDriver = $this->resolveGatewayDriver($gateway);
@@ -99,13 +99,9 @@ class PaymentController extends Controller
     /**
      * List payments (all or filtered by order_id) with pagination.
      */
-    public function index(Request $request): JsonResponse
+    public function index(PaymentIndexRequest $request): JsonResponse
     {
-        $data = $request->validate([
-            'order_id' => ['nullable', 'integer', 'exists:orders,id'],
-            'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
-            'page' => ['nullable', 'integer', 'min:1'],
-        ]);
+        $data = $request->validated();
 
         $query = Payment::query()->with(['order', 'gateway'])->latest('id');
 
@@ -113,7 +109,12 @@ class PaymentController extends Controller
             $query->where('order_id', (int)$data['order_id']);
         }
 
-        $payments = $query->paginate((int)($data['per_page'] ?? 15), ['*'], 'page', (int)($data['page'] ?? 1));
+        $payments = $query->paginate(
+            (int)($data['per_page'] ?? 15),
+            ['*'],
+            'page',
+            (int)($data['page'] ?? 1)
+        );
 
         return response()->json($payments);
     }

@@ -201,7 +201,7 @@ class OrderController extends Controller
                 $orderModel->setAttribute('items', OrderItem::query()->where('order_id', $orderModel->id)->orderBy('id')->get());
             }
 
-            return $orderModel->fresh();
+            return $orderModel->load('items');
         });
 
         if ($result instanceof \Illuminate\Http\JsonResponse) {

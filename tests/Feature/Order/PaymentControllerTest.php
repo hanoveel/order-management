@@ -56,6 +56,42 @@ class PaymentControllerTest extends TestCase
         $this->assertNotNull($payment->gateway_payment_id);
     }
 
+    public function test_process_rejects_when_order_already_has_payment(): void
+    {
+        $user = User::factory()->create();
+
+        $gateway = Gateway::factory()->create([
+            'class_name' => 'FakeGateway',
+        ]);
+
+        $order = Order::factory()->create([
+            'user_id' => $user->id,
+            'status' => OrderStatus::CONFIRMED->value,
+        ]);
+
+        $existingPayment = Payment::factory()->create([
+            'order_id' => $order->id,
+            'gateway_id' => $gateway->id,
+        ]);
+
+        $this->actingAs($user, 'api');
+
+        $response = $this->postJson("/api/orders/{$order->id}/payments/process", [
+            'gateway_id' => $gateway->id,
+            'payment_method' => 'card',
+            'notes' => 'Second attempt',
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonPath('message', 'This order already has a payment.');
+
+        $this->assertDatabaseCount('payments', 1);
+        $this->assertDatabaseHas('payments', [
+            'id' => $existingPayment->id,
+            'order_id' => $order->id,
+        ]);
+    }
+
     public function test_process_rejects_when_order_not_confirmed(): void
     {
         $user = User::factory()->create();
